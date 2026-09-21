@@ -14,6 +14,7 @@
   *{box-sizing:border-box}
   html,body{height:100%;margin:0;background:#0F172A;color:#E2E8F0;
     font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  #app{position:fixed;inset:0;border:0;width:100%;height:100%;display:none;background:#fff}
   #portada{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;
     padding-top:calc(24px + env(safe-area-inset-top,0px));
     padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
@@ -39,6 +40,10 @@
 </style>
 </head>
 <body>
+
+<!-- El ERP se muestra acá adentro: así la ventana de la app instalada
+     nunca sale de este dominio y no aparece la barra con la dirección. -->
+<iframe id="app" title="OFICINA" allow="clipboard-write; fullscreen"></iframe>
 
 <div id="portada">
   <div class="caja">
@@ -68,15 +73,20 @@
  * CONFIGURACIÓN · lo ÚNICO que hay que editar
  * Pegá acá la URL /exec de tu implementación de Apps Script.
  * ═══════════════════════════════════════════════════════════════ */
-var URL_ERP = 'https://sites.google.com/view/gestiondeoficina/sistema-de-gestion';
+var URL_ERP = 'https://script.google.com/macros/s/AKfycbwpFnvNI7IfyUvY940C4Gq3V4qdof-FKmKmm3ghg20qQi4Qz4yqQ_dxreVxDYGPuHo1uw/exec';
+/* OJO: tiene que ser la URL /exec de Apps Script, NO la de Google Sites.
+   Google Sites no se deja incrustar en otros sitios. */
 
 var prompt_ = null;
 
-/* Abre el ERP en esta misma ventana (la ventana de la app instalada). */
+/* Abre el ERP dentro de esta misma ventana, en el marco de pantalla
+   completa. Así la app instalada no navega a otro dominio y el
+   navegador no muestra la barra con la dirección. */
 function entrar(){
-  document.getElementById('bloqueInstalar').style.display = 'none';
-  document.getElementById('yendo').style.display = 'block';
-  location.replace(URL_ERP);
+  var marco = document.getElementById('app');
+  if(!marco.src) marco.src = URL_ERP;
+  marco.style.display = 'block';
+  document.getElementById('portada').style.display = 'none';
 }
 
 /* Abierta desde el ícono ya instalado: no se muestra la portada. */
