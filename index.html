@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OFICINA · Gestión empresarial</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./favicon.png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<meta name="theme-color" content="#2563EB">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="OFICINA">
+<style>
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:#0F172A;color:#E2E8F0;
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  #portada{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;
+    padding-top:calc(24px + env(safe-area-inset-top,0px));
+    padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+  .caja{width:100%;max-width:420px;background:#111C33;border:1px solid #1E293B;border-radius:18px;padding:28px}
+  .marca{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .marca img{width:48px;height:48px;border-radius:12px}
+  .marca b{font-size:18px;color:#fff}
+  .marca small{display:block;color:#94A3B8;font-size:12px}
+  h1{font-size:20px;margin:0 0 6px;color:#fff}
+  p{margin:0 0 18px;color:#94A3B8;font-size:14px;line-height:1.5}
+  button{width:100%;border:0;border-radius:12px;padding:14px;font-size:15px;font-weight:600;
+    cursor:pointer;margin-bottom:10px;font-family:inherit}
+  .pri{background:#2563EB;color:#fff}
+  .pri:hover{background:#1D4ED8}
+  .sec{background:transparent;color:#E2E8F0;border:1px solid #334155}
+  .sec:hover{background:#1E293B}
+  .aviso{margin:14px 0 0;padding:12px;border-radius:10px;font-size:13px;line-height:1.5;display:none}
+  .ok{background:#064E3B;color:#D1FAE5}
+  .info{background:#1E293B;color:#CBD5E1}
+  .pasos{margin:14px 0 0;font-size:13px;color:#CBD5E1;line-height:1.6;display:none}
+  .pasos b{color:#fff}
+  .yendo{display:none;text-align:center;color:#94A3B8;font-size:14px}
+</style>
+</head>
+<body>
+
+<div id="portada">
+  <div class="caja">
+    <div class="marca">
+      <img src="./icon-192.png" alt="">
+      <div><b>OFICINA</b><small>Gestión empresarial</small></div>
+    </div>
+
+    <div id="bloqueInstalar">
+      <h1>Instalá OFICINA</h1>
+      <p>Queda con su propio ícono y se abre en su propia ventana, sin la barra del navegador.
+         Sirve para cualquier empresa: la empresa se elige al iniciar sesión.</p>
+
+      <button class="pri" id="btnInstalar">📲 Instalar la app</button>
+      <button class="sec" id="btnEntrar">Entrar sin instalar</button>
+
+      <div class="aviso ok" id="avisoOk">✅ Se instaló correctamente. Buscá el ícono <b>OFICINA</b> en tu pantalla de inicio o escritorio.</div>
+      <div class="aviso info" id="avisoInfo"></div>
+      <div class="pasos" id="pasos"></div>
+    </div>
+
+    <div class="yendo" id="yendo">Abriendo el sistema…</div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+ * CONFIGURACIÓN · lo ÚNICO que hay que editar
+ * Pegá acá la URL /exec de tu implementación de Apps Script.
+ * ═══════════════════════════════════════════════════════════════ */
+var URL_ERP = 'https://script.google.com/macros/s/PEGA_AQUI_TU_ID/exec';
+
+var prompt_ = null;
+
+/* Abre el ERP en esta misma ventana (la ventana de la app instalada). */
+function entrar(){
+  document.getElementById('bloqueInstalar').style.display = 'none';
+  document.getElementById('yendo').style.display = 'block';
+  location.replace(URL_ERP);
+}
+
+/* Abierta desde el ícono ya instalado: no se muestra la portada. */
+function abiertaComoApp(){
+  try{
+    return window.matchMedia('(display-mode: standalone)').matches ||
+           window.matchMedia('(display-mode: minimal-ui)').matches ||
+           window.navigator.standalone === true ||
+           location.search.indexOf('app=1') > -1;
+  }catch(e){ return location.search.indexOf('app=1') > -1; }
+}
+
+/* El navegador avisa cuando la instalación está disponible: se guarda
+   el evento para dispararlo desde nuestro botón. */
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();
+  prompt_ = e;
+});
+
+window.addEventListener('appinstalled', function(){
+  prompt_ = null;
+  document.getElementById('avisoOk').style.display = 'block';
+  document.getElementById('avisoInfo').style.display = 'none';
+  document.getElementById('pasos').style.display = 'none';
+});
+
+function instruccionesManuales(){
+  var ua = navigator.userAgent, txt;
+  if(/iphone|ipad|ipod/i.test(ua)){
+    txt = '<b>En iPhone o iPad:</b> abrí esta página en Safari, tocá Compartir ' +
+          '(el cuadrado con la flecha) y elegí “Agregar a pantalla de inicio”.';
+  } else if(/android/i.test(ua)){
+    txt = '<b>En Android:</b> abrí el menú de Chrome (los tres puntos) y elegí ' +
+          '“Instalar app” o “Agregar a pantalla principal”.';
+  } else {
+    txt = '<b>En la computadora:</b> mirá el ícono de instalar al final de la barra de ' +
+          'direcciones de Chrome o Edge. Si no aparece, abrí el menú (tres puntos) → ' +
+          'Guardar y compartir → Instalar página como aplicación.';
+  }
+  var p = document.getElementById('pasos');
+  p.innerHTML = txt;
+  p.style.display = 'block';
+}
+
+document.getElementById('btnInstalar').onclick = function(){
+  if(prompt_){
+    prompt_.prompt();
+    prompt_.userChoice.then(function(r){
+      prompt_ = null;
+      if(!r || r.outcome !== 'accepted'){
+        var a = document.getElementById('avisoInfo');
+        a.textContent = 'Cancelaste la instalación. Podés entrar igual y volver a instalarla cuando quieras.';
+        a.style.display = 'block';
+      }
+    });
+    return;
+  }
+  var a = document.getElementById('avisoInfo');
+  a.textContent = 'Este navegador no ofrece la instalación de un clic. Se hace en dos toques:';
+  a.style.display = 'block';
+  instruccionesManuales();
+};
+
+document.getElementById('btnEntrar').onclick = entrar;
+
+/* El service worker es requisito para que el navegador ofrezca instalar. */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('./sw.js').catch(function(){});
+  });
+}
+
+if(abiertaComoApp()) entrar();
+</script>
+</body>
+</html>
