@@ -4,7 +4,7 @@
  * portada para que abra aun sin señal. El ERP en sí NO se cachea: sus
  * datos viven en Google y tienen que llegar frescos siempre.
  */
-var CACHE = 'oficina-lanzador-v1';
+var CACHE = 'oficina-lanzador-v2';
 var ARCHIVOS = [
   './',
   './index.html',
